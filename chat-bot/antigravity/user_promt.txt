@@ -1,0 +1,49 @@
+Build a RAG-based chatbot backend with the following requirements:
+
+Tech stack:
+- Python
+- FastAPI
+- MongoDB
+- Qdrant (Docker)
+- Azure OpenAI
+
+Functional requirements:
+1. Data is stored in MongoDB and represents FAQs grouped by categories
+2. FAQ data must be embedded using Azure OpenAI (text-embedding-3-large)
+3. Embeddings must be stored in Qdrant
+4. User queries must:
+   - be embedded
+   - search relevant vectors in Qdrant
+   - use retrieved context to generate an answer via Azure OpenAI chat completion
+5. The system must expose three main API groups:
+   - APIs to create/update/delete FAQ data in MongoDB
+   - APIs to (re-)embed FAQ data and sync it into Qdrant
+   - APIs to chat with the system using RAG
+
+Data model:
+- category:
+  - id
+  - name
+- faq:
+  - id
+  - category_id
+  - question
+  - answer
+
+Architecture expectations:
+- Use a layered architecture (not Clean Architecture)
+- Clear separation between:
+  - API layer
+  - business logic
+  - data access
+  - external service clients
+- MongoDB is the single source of truth
+- Qdrant is a derived index and can be rebuilt at any time
+- Re-embedding must be idempotent and safe to run multiple times
+
+Non-functional requirements:
+- Code must be clean, readable, and maintainable
+- The plan must be detailed enough for Codex to implement directly
+- Focus on production-ready decisions
+
+Generate a detailed implementation plan following the system instructions.

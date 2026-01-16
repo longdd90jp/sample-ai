@@ -1,0 +1,14 @@
+**/.terraform
+**/.terraform.lock.hcl
+**/terraform.tfstate*
+*.log
+__pycache__/
+
+.venv
+terraform-workspace
+.vscode/
+
+# env files (can opt-in for committing if needed)
+.env*
+
+scripts/*.txt
