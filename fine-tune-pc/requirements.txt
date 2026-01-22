@@ -1,1 +1,21 @@
-openai
+# ---------- PyTorch (CUDA 12.1) ----------
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch==2.1.2
+torchvision==0.16.2
+torchaudio==2.1.2
+
+# ---------- Hugging Face core ----------
+transformers==4.39.3
+datasets==2.18.0
+accelerate==0.27.2
+
+# ---------- QLoRA / PEFT ----------
+peft==0.10.0
+bitsandbytes==0.42.0
+
+# ---------- Supervised Fine-tuning ----------
+trl==0.7.11
+
+# ---------- Utils (nên có) ----------
+tqdm
+sentencepiece
