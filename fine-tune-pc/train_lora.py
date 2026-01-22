@@ -25,6 +25,7 @@ model = AutoModelForCausalLM.from_pretrained(
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 tokenizer.pad_token = tokenizer.eos_token
+tokenizer.padding_side = "right"
 
 dataset = load_dataset(
     "json",
@@ -32,7 +33,7 @@ dataset = load_dataset(
         "train": [
             "data/training_set_ai.jsonl",
             "data/training_set_coding.jsonl",
-            "data/training_set_gaming.jsonl",
+            "data/training_set_gamming.jsonl",
             "data/training_set_meeting.jsonl",
             "data/training_set_office.jsonl",
         ],
@@ -50,6 +51,7 @@ lora_config = LoraConfig(
 )
 
 model = get_peft_model(model, lora_config)
+model.config.use_cache = False
 
 training_args = TrainingArguments(
     output_dir="./output",
@@ -58,6 +60,8 @@ training_args = TrainingArguments(
     gradient_accumulation_steps=8,
     learning_rate=2e-4,
     fp16=True,
+    gradient_checkpointing=True,
+    optim="paged_adamw_8bit",
     logging_steps=10,
     evaluation_strategy="steps",
     eval_steps=50,
@@ -66,12 +70,24 @@ training_args = TrainingArguments(
     report_to="none"
 )
 
+def format_chat(example):
+    messages = example.get("messages")
+    if not messages:
+        return ""
+    return tokenizer.apply_chat_template(
+        messages,
+        tokenize=False,
+        add_generation_prompt=False
+    )
+
 trainer = SFTTrainer(
     model=model,
     tokenizer=tokenizer,
     train_dataset=dataset["train"],
     eval_dataset=dataset["validation"],
     args=training_args,
+    formatting_func=format_chat,
+    max_seq_length=2048,
 )
 
 trainer.train()
