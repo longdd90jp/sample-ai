@@ -1,0 +1,38 @@
+# Web framework
+fastapi
+uvicorn
+
+# Ranking / retrieval
+rank-bm25
+
+# LangChain ecosystem
+langchain
+langchain-openai
+langchain-community
+
+# OpenAI & tokenization
+openai
+tiktoken
+
+# Vector store
+faiss-cpu
+
+# Validation & config
+pydantic<2
+python-dotenv
+
+# HTTP & retry
+httpx
+tenacity
+
+# Web scraping
+beautifulsoup4
+
+# OpenTelemetry core
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-exporter-otlp
+
+# OpenTelemetry instrumentation
+opentelemetry-instrumentation-fastapi
+opentelemetry-instrumentation-httpx
