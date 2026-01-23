@@ -1,21 +1,29 @@
-# ---------- PyTorch (CUDA 12.1) ----------
+# ---------- PyTorch (Tối ưu cho Python 3.12 & CUDA 12.1/12.4) ----------
 --extra-index-url https://download.pytorch.org/whl/cu121
-torch==2.1.2
-torchvision==0.16.2
-torchaudio==2.1.2
+torch>=2.4.0
+torchvision
+torchaudio
 
-# ---------- Hugging Face core ----------
-transformers==4.43.1
-datasets==2.18.0
-accelerate==0.27.2
+# ---------- Hugging Face core (Cập nhật bản mới nhất cho Llama 3.1) ----------
+transformers>=4.45.0
+datasets>=2.20.0
+accelerate>=0.33.0
 
-# ---------- QLoRA / PEFT ----------
-peft==0.10.0
-bitsandbytes==0.42.0
+# ---------- QLoRA / PEFT (Hỗ trợ tốt cho 16GB VRAM) ----------
+peft>=0.12.0
+bitsandbytes>=0.43.3
+scipy
 
-# ---------- Supervised Fine-tuning ----------
-trl==0.7.11
+# ---------- Supervised Fine-tuning & Optimization ----------
+trl>=0.9.6
+# Xformers giúp tiết kiệm bộ nhớ cho kiến trúc RTX 40-series
+xformers>=0.0.27 
 
-# ---------- Utils (nên có) ----------
+# ---------- Tăng tốc phần cứng (Bắt buộc nên có) ----------
+# flash-attn --no-build-isolation
+
+# ---------- Utils & Tokenization ----------
 tqdm
 sentencepiece
+protobuf
+tensorboard

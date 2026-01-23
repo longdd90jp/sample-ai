@@ -12,3 +12,5 @@ terraform-workspace
 .env*
 
 scripts/*.txt
+
+fine-tune-pc/output
