@@ -12,6 +12,7 @@ class Spec(BaseModel):
     cpu: str = Field(..., min_length=1)
     mainboard: str = Field(..., min_length=1)
     ram: str = Field(..., min_length=1)
+    vga: str | None = None
     storage: Storage
     power_supply: str = Field(..., min_length=1)
     case: str = Field(..., min_length=1)
