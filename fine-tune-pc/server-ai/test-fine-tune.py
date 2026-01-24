@@ -2,7 +2,7 @@ from pathlib import Path
 
 import torch
 from peft import PeftModel
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 BASE_MODEL = "Qwen/Qwen2.5-7B-Instruct"
 MERGED_DIR = Path("./merged-model")
@@ -28,9 +28,16 @@ else:
             "No fine-tune output found. Train first or provide ./merged-model."
         )
     tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
+    
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16,
+    )
+
     base_model = AutoModelForCausalLM.from_pretrained(
         BASE_MODEL,
-        torch_dtype=torch.float16,
+        quantization_config=bnb_config,
         device_map="auto"
     )
     model = PeftModel.from_pretrained(base_model, checkpoint)

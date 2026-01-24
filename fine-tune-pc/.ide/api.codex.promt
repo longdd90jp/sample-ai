@@ -1,0 +1,70 @@
+# Role
+You are an expert Python developer specializing in FastAPI and Machine Learning model deployment.
+
+# Task
+Your task is to create a FastAPI application to serve a fine-tuned Qwen 2.5 model. You will base your implementation on the existing logic found in `fine-tune-pc/server-ai/test-fine-tune.py`.
+
+# Context
+The user has a fine-tuned model (or a base model with potential LoRA adapter) that they want to access via an HTTP API.
+Existing script `fine-tune-pc/server-ai/test-fine-tune.py` demonstrates how to load the model, the tokenizer, and how to run inference.
+
+# Files to Create
+
+## 1. `fine-tune-pc/app/api/main.py`
+This will be the main entry point for the FastAPI application.
+
+**Requirements:**
+-   **Framework**: Use `FastAPI`.
+-   **Model Loading**:
+    -   Load the model and tokenizer *once* during application startup using FastAPI's `lifespan` context manager.
+    -   Reuse the logic from `test-fine-tune.py` to handle `MERGED_DIR` vs `OUTPUT_DIR` (checkpoints).
+    -   Adapt the paths so they work from `fine-tune-pc/app/api/` (likely need to go up two levels to reach `merged-model` or `output` directories, e.g., `../../merged-model`).
+    -   Use `peft`, `transformers`, `torch` as needed.
+-   **Endpoint**:
+    -   `POST /api/generate`
+    -   **Request Body**:
+        -   `content`: A Pydantic model `ContentRequest` containing:
+            -   `specs`: `List[Spec]`
+                -   `Spec`: `cpu` (str), `ram` (str), `storage` (`Storage`)
+                -   `Storage`: `ssd` (str), `hdd` (str, optional/default None)
+            -   `target`: `str`
+        -   `max_new_tokens`: int (default 300)
+        -   `temperature`: float (default 0.7)
+        -   `top_p`: float (default 0.9)
+    -   **Logic**:
+        -   Format the `content` (specs and target) into a single string to use as the prompt. You can format it as:
+            ```
+            Specs:
+            <json_dump_of_specs>
+
+            Target: <target>
+            ``` 
+            (or similar clear format).
+        -   Construct the chat messages: `[{"role": "user", "content": formatted_prompt}]`.
+        -   Applies the chat template using `tokenizer.apply_chat_template`.
+        -   Runs generation using `model.generate`.
+        -   Returns the generated text (decoded).
+
+## 2. `fine-tune-pc/app/api/test_client.py`
+A simple Python script to verify the API is working.
+
+**Requirements:**
+-   Use `requests` or `httpx`.
+-   Send a POST request to `http://localhost:8000/api/generate`.
+-   Payload:
+    ```json
+    {
+        "content": {
+            "specs": [
+                {"cpu": "Intel", "ram": "DDR4", "storage": {"ssd": "256GB", "hdd": "1TB"}}
+            ],
+            "target": "Build a PC for office work with low budget."
+        }
+    }
+    ```
+-   Print the result.
+
+# Important Notes
+-   Ensure all imports are correct.
+-   Handle the case where the model directory might be relative to the root `fine-tune-pc`.
+-   Keep the code clean and well-structured.
