@@ -8,15 +8,17 @@ from .chat_api import router as chat_router
 from .home_api import router as home_router
 from .load_model_logic import load_base_model, load_model
 
-MODEL_MODE = "BASE"
+MODEL_MODE = "FINE_TUNE"
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Load the model once at startup and reuse for all requests.
     if MODEL_MODE == "BASE":
+        print("Loading base model")
         tokenizer, model = load_base_model()
     else:
+        print("Loading fine-tune model")
         tokenizer, model = load_model()
     print("Done loading model")
     app.state.tokenizer = tokenizer

@@ -22,7 +22,7 @@ def resolve_model_paths() -> tuple[Path, Path]:
     # Resolve paths relative to fine-tune-pc/ so API works from api/.
     root_dir = Path(__file__).resolve().parents[2]
     merged_dir = root_dir / "server-ai" / "merged-model"
-    output_dir = root_dir / "server-ai" / "output"
+    output_dir = root_dir / "server-ai" / "output_qwen_14b"
     return merged_dir, output_dir
 
 

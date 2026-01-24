@@ -13,4 +13,6 @@ terraform-workspace
 
 scripts/*.txt
 
-fine-tune-pc/output
+fine-tune-pc/server-ai/output_qwen_14b/*
+fine-tune-pc/server-ai/output/*
+fine-tune-pc/server-ai/output_qwen_7b/*
