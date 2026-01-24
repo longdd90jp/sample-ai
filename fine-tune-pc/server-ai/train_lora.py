@@ -53,20 +53,22 @@ model.config.use_cache = False
 
 print("Model loaded")   
 training_args = SFTConfig(
-    output_dir="./output",
-    num_train_epochs=10,
+    output_dir="./output_qwen_14b",
+    num_train_epochs=7,
     per_device_train_batch_size=1,
     gradient_accumulation_steps=8,
-    learning_rate=2e-4,
+    learning_rate=1e-4,
     fp16=False,
     bf16=True,
     gradient_checkpointing=True,
     optim="paged_adamw_8bit",
     logging_steps=10,
     eval_strategy="steps",
-    eval_steps=50,
-    save_steps=100,
-    save_total_limit=2,
+    eval_steps=5,
+    save_steps=5,
+    save_total_limit=4,
+    load_best_model_at_end=True,
+    metric_for_best_model="eval_loss",
     report_to="none",
     max_length=2048
 )
