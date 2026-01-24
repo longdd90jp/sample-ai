@@ -27,3 +27,8 @@ tqdm
 sentencepiece
 protobuf
 tensorboard
+
+# ---------- API ----------
+fastapi>=0.111.0
+uvicorn>=0.30.0
+requests
