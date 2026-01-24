@@ -10,3 +10,13 @@ python train_lora.py
 
 uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 curl http://localhost:8000/health
+
+
+{'loss': 1.9177, 'grad_norm': 0.5234375, 'learning_rate': 0.00017, 'entropy': 1.4939238704167879, 'num_tokens': 46521.0, 'mean_token_accuracy': 0.6094653361882919, 'epoch': 1.7}
+{'loss': 1.4444, 'grad_norm': 0.76953125, 'learning_rate': 0.00013666666666666666, 'entropy': 1.6559917518967076, 'num_tokens': 91866.0, 'mean_token_accuracy': 0.6709387921973279, 'epoch': 3.35}
+{'loss': 1.0201, 'grad_norm': 0.71875, 'learning_rate': 0.00010333333333333334, 'entropy': 1.0645010102736323, 'num_tokens': 137385.0, 'mean_token_accuracy': 0.7533867421903109, 'epoch': 5.0}
+{'loss': 0.7422, 'grad_norm': 0.58984375, 'learning_rate': 7e-05, 'entropy': 0.7873549446081504, 'num_tokens': 184095.0, 'mean_token_accuracy': 0.8128641049067179, 'epoch': 6.7}
+{'loss': 0.6055, 'grad_norm': 0.5859375, 'learning_rate': 3.6666666666666666e-05, 'entropy': 0.654306527815367, 'num_tokens': 229423.0, 'mean_token_accuracy': 0.8457257135918266, 'epoch': 8.35}
+{'eval_loss': 1.5128037929534912, 'eval_runtime': 15.2435, 'eval_samples_per_second': 0.984, 'eval_steps_per_second': 0.131, 'eval_entropy': 0.9317197203636169, 'eval_num_tokens': 229423.0, 'eval_mean_token_accuracy': 0.6811065077781677, 'epoch': 8.35}
+{'loss': 0.5492, 'grad_norm': 0.62109375, 'learning_rate': 3.3333333333333333e-06, 'entropy': 0.5892755867619264, 'num_tokens': 274770.0, 'mean_token_accuracy': 0.8604370112481871, 'epoch': 10.0}
+{'train_runtime': 1392.0986, 'train_samples_per_second': 0.33, 'train_steps_per_second': 0.043, 'train_loss': 1.0465360482533772, 'epoch': 10.0}

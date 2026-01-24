@@ -4,7 +4,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model
 from trl import SFTTrainer, SFTConfig
 
-MODEL_NAME = "Qwen/Qwen2.5-7B-Instruct"
+MODEL_NAME = "Qwen/Qwen2.5-14B-Instruct"
 
 bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
@@ -54,7 +54,7 @@ model.config.use_cache = False
 print("Model loaded")   
 training_args = SFTConfig(
     output_dir="./output",
-    num_train_epochs=3,
+    num_train_epochs=10,
     per_device_train_batch_size=1,
     gradient_accumulation_steps=8,
     learning_rate=2e-4,
@@ -96,6 +96,6 @@ print("Trainer loaded")
 trainer.train()
 print("Training completed")
 
-model.save_pretrained("./output")
+model.save_pretrained("./output_qwen_14b")
 print("Model saved")
 

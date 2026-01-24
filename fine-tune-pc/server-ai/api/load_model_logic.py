@@ -7,7 +7,7 @@ import torch
 from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-BASE_MODEL = "Qwen/Qwen2.5-7B-Instruct"
+BASE_MODEL = "Qwen/Qwen2.5-14B-Instruct"
 
 
 def latest_checkpoint(output_dir: Path) -> Path | None:
@@ -24,6 +24,25 @@ def resolve_model_paths() -> tuple[Path, Path]:
     merged_dir = root_dir / "server-ai" / "merged-model"
     output_dir = root_dir / "server-ai" / "output"
     return merged_dir, output_dir
+
+
+def _base_bnb_config() -> BitsAndBytesConfig:
+    return BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16,
+    )
+
+
+def load_base_model() -> tuple[Any, Any]:
+    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
+    base_model = AutoModelForCausalLM.from_pretrained(
+        BASE_MODEL,
+        quantization_config=_base_bnb_config(),
+        device_map="auto",
+    )
+    base_model.eval()
+    return tokenizer, base_model
 
 
 def load_model() -> tuple[Any, Any]:
@@ -45,15 +64,9 @@ def load_model() -> tuple[Any, Any]:
             )
         tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
 
-        bnb_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.bfloat16,
-        )
-
         base_model = AutoModelForCausalLM.from_pretrained(
             BASE_MODEL,
-            quantization_config=bnb_config,
+            quantization_config=_base_bnb_config(),
             device_map="auto",
         )
         model = PeftModel.from_pretrained(base_model, checkpoint)

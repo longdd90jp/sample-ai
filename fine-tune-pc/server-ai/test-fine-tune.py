@@ -4,7 +4,7 @@ import torch
 from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-BASE_MODEL = "Qwen/Qwen2.5-7B-Instruct"
+BASE_MODEL = "Qwen/Qwen2.5-14B-Instruct"
 MERGED_DIR = Path("./merged-model")
 OUTPUT_DIR = Path("./output")
 

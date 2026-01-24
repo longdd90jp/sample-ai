@@ -1,0 +1,35 @@
+You are an expert Python/FastAPI developer.
+Please implement the following changes to add a base model generation API and dynamic model loading logic.
+
+### Context
+We have a FastAPI server in `server-ai` that currently loads a fine-tuned model (or merged model).
+We want to add a mode to load ONLY the base model for testing purposes, and a new API endpoint to use it.
+
+### Required Changes
+
+#### 1. Modify `server-ai/api/load_model_logic.py`
+Refactor the `load_model` function to support loading the base model independently.
+- Create a new function `load_base_model() -> tuple[Any, Any]` (tokenizer, model).
+- This function should load `Qwen/Qwen2.5-7B-Instruct` using `BitsAndBytesConfig` (4-bit quantization), similar to how the base model is loaded in the `else` block of the current `load_model` function, but WITHOUT loading the Peft adapter.
+- Ensure the existing `load_model` (which loads fine-tuned/merged) remains functional.
+
+#### 2. Modify `server-ai/api/main.py`
+Add a constant and conditional logic to control which model is loaded.
+- Add a constant `MODEL_MODE = "FINE_TUNE"` (Options: "BASE", "FINE_TUNE") at the top level.
+- In the `lifespan` function:
+  - If `MODEL_MODE == "BASE"`, call `load_base_model()`.
+  - If `MODEL_MODE == "FINE_TUNE"`, call `load_model()` (the existing one).
+
+#### 3. Modify `server-ai/api/chat_api.py`
+Add a new API endpoint for the base model.
+- Add a new POST endpoint `/api/base/generate`.
+- It should have the exact same signature and logic as `/api/fine-tune/generate`.
+- Ideally, refactor the generation logic into a shared function if possible to avoid code duplication, calling it from both endpoints.
+- The endpoint will use whatever model is currently loaded in `request.app.state.model`. (Validating that the correct model mode is loaded is optional but good to have).
+
+### Files to Edit
+- `server-ai/api/load_model_logic.py`
+- `server-ai/api/main.py`
+- `server-ai/api/chat_api.py`
+
+Please provide the code for these files.

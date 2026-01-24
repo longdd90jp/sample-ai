@@ -10,8 +10,7 @@ from .model import GenerateRequest, GenerateResponse
 router = APIRouter()
 
 
-@router.post("/api/generate", response_model=GenerateResponse)
-def generate(payload: GenerateRequest, request: Request) -> GenerateResponse:
+def _generate_response(payload: GenerateRequest, request: Request) -> GenerateResponse:
     # Use the same chat template as the training/inference script.
     model = request.app.state.model
     tokenizer = request.app.state.tokenizer
@@ -25,7 +24,10 @@ def generate(payload: GenerateRequest, request: Request) -> GenerateResponse:
     )
     prompt = f"Specs:\n{specs_json}\n\nTarget: {payload.content.target}"
 
-    messages = [{"role": "user", "content": prompt}]
+    messages = [
+        {"role": "system", "content": "Bạn là tư vấn viên bán lẻ linh kiện PC chuyên nghiệp."},
+        {"role": "user", "content": prompt}
+        ]
     chat_prompt = tokenizer.apply_chat_template(
         messages,
         tokenize=False,
@@ -44,3 +46,15 @@ def generate(payload: GenerateRequest, request: Request) -> GenerateResponse:
 
     text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return GenerateResponse(text=text)
+
+
+@router.post("/api/fine-tune/generate", response_model=GenerateResponse)
+def generate_fine_tune(
+    payload: GenerateRequest, request: Request
+) -> GenerateResponse:
+    return _generate_response(payload, request)
+
+
+@router.post("/api/base/generate", response_model=GenerateResponse)
+def generate_base(payload: GenerateRequest, request: Request) -> GenerateResponse:
+    return _generate_response(payload, request)
