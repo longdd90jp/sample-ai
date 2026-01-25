@@ -35,6 +35,7 @@ def _generate_response(payload: GenerateRequest, request: Request) -> GenerateRe
     )
 
     inputs = tokenizer(chat_prompt, return_tensors="pt").to(model.device)
+    input_ids = inputs["input_ids"]
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
@@ -44,7 +45,9 @@ def _generate_response(payload: GenerateRequest, request: Request) -> GenerateRe
             do_sample=True,
         )
 
-    text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # Only decode the newly generated tokens
+    generated_ids = outputs[0][len(input_ids[0]) :]
+    text = tokenizer.decode(generated_ids, skip_special_tokens=True)
     return GenerateResponse(text=text)
 
 
