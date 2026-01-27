@@ -8,7 +8,8 @@ from .chat_api import router as chat_router
 from .home_api import router as home_router
 from .load_model_logic import load_base_model, load_model
 
-MODEL_MODE = "FINE_TUNE"
+# BASE OR FINE_TUNE
+MODEL_MODE = "BASE"
 
 
 @asynccontextmanager
