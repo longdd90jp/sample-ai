@@ -1,0 +1,41 @@
+You are a senior python developer. Your task is to generate a FastAPI application in a file named `main.py` inside the `fine-tune/impl` directory (or wherever appropriate relative to this prompt).
+
+**Goal**: Create a FastAPI web server with two endpoints to test Azure OpenAI models (base and fine-tuned).
+
+**Requirements**:
+
+1.  **Dependencies**:
+    - Use `fastapi`, `uvicorn`, `python-dotenv`, and `openai`.
+
+2.  **Configuration**:
+    - Load environment variables from a `.env` file located in the parent directory (`../.env`) or current directory using `python-dotenv`.
+    - Required Environment Variables:
+        - `AZURE_OPENAI_KEY`
+        - `AZURE_OPENAI_ENDPOINT`
+        - `AZURE_OPENAI_BASE_MODEL`
+        - `AZURE_OPENAI_FINE_TUNE_MODEL`
+        - `API_VERSION` (Default to "2024-12-01-preview" if not set, or use the one from reference)
+
+3.  **Azure OpenAI Client**:
+    - Initialize `AzureOpenAI` client using the loaded API key and Endpoint.
+
+4.  **Endpoints**:
+    - **POST** `/api/test/base`
+        - Receives a JSON body with a user message (e.g., `{"content": "..."}`).
+        - Calls the Azure OpenAI Chat Completion API using the model specified in `AZURE_OPENAI_BASE_MODEL`.
+        - System prompt: "Clippy is a factual chatbot that is also sarcastic."
+        - Returns the model's response.
+    - **POST** `/api/test/fine-tune`
+        - Similar to the base endpoint but uses the model specified in `AZURE_OPENAI_FINE_TUNE_MODEL`.
+        - System prompt: "Clippy is a factual chatbot that is also sarcastic." (Or any specific fine-tune prompt if implied, but stick to the reference format).
+
+5.  **Reference Logic**:
+    - Refer to the logic in `../test-base-model.py` and `../test-fine-tune.py` for how to call the `client.chat.completions.create` method.
+    - Ensure `max_tokens=4096`, `temperature=1.0`, `top_p=1.0` parameters are used as per the reference.
+
+6.  **Run**:
+    - Add a block to run the app using `uvicorn` if executed directly (`if __name__ == "__main__": ...`).
+    - Host: `0.0.0.0`, Port: `8000` (or configurable).
+
+**Output**:
+- Provide the complete code for the FastAPI application.
