@@ -1,0 +1,147 @@
+PROJECT: Demo RAG + MCP + Agentic AI
+LANGUAGE: Python
+ARCHITECTURE: Modular Microservices (each module container-ready)
+
+GOAL:
+Build a production-style demo combining:
+- MCP Agent Orchestration
+- RAG Retrieval
+- Azure OpenAI LLM
+- Antigravity planning
+- Codex coding execution
+
+--------------------------------------------------
+GLOBAL DESIGN PRINCIPLES
+--------------------------------------------------
+- Each module is an isolated Python service
+- Each module lives in its own folder
+- Each module can be containerized later
+- Clear separation of concerns:
+  - Orchestration
+  - Retrieval
+  - Embedding
+  - Ingestion
+  - API Gateway
+
+--------------------------------------------------
+MODULE STRUCTURE
+--------------------------------------------------
+
+/mcp-server
+/search-server
+/ingestion-service
+/mcp-client
+
+--------------------------------------------------
+MODULE: MCP-SERVER (Agent Brain)
+--------------------------------------------------
+Framework: fastmcp
+Role:
+- Acts as MCP Agent Orchestrator
+- Decides when to call tools
+- Calls Search Server as RAG tool
+- Calls Azure OpenAI LLM for reasoning & answer synthesis
+- Merges retrieved context into final answer
+
+Responsibilities:
+- Receive query from MCP Client
+- Determine if retrieval is needed
+- Call Search Server tool
+- Inject retrieved passages into LLM prompt
+- Generate final response using Azure OpenAI
+- Return structured response
+
+--------------------------------------------------
+MODULE: SEARCH-SERVER (RAG Retrieval API)
+--------------------------------------------------
+Framework: FastAPI
+Vector DB: Qdrant
+Embedding Model: Azure OpenAI text-embedding-3-large
+
+Role:
+- Handle semantic search
+- Query Qdrant
+- Return ranked text chunks
+- Optional hybrid filtering (metadata, tags)
+
+Endpoints:
+- POST /search
+- Input: query text
+- Output: top-k passages + metadata + confidence score
+
+--------------------------------------------------
+MODULE: INGESTION-SERVICE (Document Upload + Embedding)
+--------------------------------------------------
+Framework: FastAPI
+
+Features:
+- Upload text, PDF, and image files
+- Extract text (PDF + OCR if needed)
+- Chunk documents
+- Generate embeddings using Azure OpenAI
+- Store embeddings into Qdrant
+- Save metadata: filename, source, timestamp, tags
+
+Endpoints:
+- POST /upload
+- POST /embed
+- POST /reindex
+
+--------------------------------------------------
+MODULE: MCP-CLIENT (API Gateway / UI)
+--------------------------------------------------
+Framework: FastAPI
+
+Role:
+- Public API entrypoint
+- Exposes /api/search
+- Sends user query to MCP Server
+- Returns final answer to client
+
+Flow:
+User Query
+→ MCP Client
+→ MCP Server (Agent Brain)
+→ Search Server (RAG)
+→ Azure OpenAI (LLM)
+→ Final Answer
+
+--------------------------------------------------
+RAG FLOW (HIGH QUALITY)
+--------------------------------------------------
+1. User query enters MCP Server
+2. MCP Agent rewrites query if needed
+3. MCP calls Search Server
+4. Search Server queries Qdrant vector DB
+5. Returns top relevant passages
+6. MCP injects passages into LLM prompt
+7. Azure OpenAI generates final answer
+8. MCP returns structured output
+
+--------------------------------------------------
+OPTIONAL ADVANCED FEATURES
+--------------------------------------------------
+- Query rewriting
+- Reranker model
+- Source citations in output
+- Confidence scoring
+- Image OCR pipeline
+- Streaming responses
+- Multi-agent MCP expansion later
+
+--------------------------------------------------
+DEPLOYMENT PLAN
+--------------------------------------------------
+Each module runs as independent container
+Future ready:
+- Docker
+- Kubernetes
+- Azure Container Apps
+
+--------------------------------------------------
+SUCCESS CRITERIA
+--------------------------------------------------
+- Clean modular architecture
+- Clear agentic MCP behavior
+- Demonstrable RAG accuracy
+- Ready for demo / presentation / GitHub portfolio

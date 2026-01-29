@@ -1,0 +1,6 @@
+﻿fastapi
+uvicorn
+fastmcp
+httpx
+openai
+python-dotenv

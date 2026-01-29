@@ -1,0 +1,33 @@
+tôi dự định tạo một ứng dụng demo: rag, mcp.
+tôi dự định dùng bạn để review kịch bạn
+dùng antigravity để lên plan và prompt
+dùng codex để thực hiện coding
+
+bạn xem kịch bản của tôi ổn chưa, nếu cần sửa gì thì bạn sửa lại giúp tôi để tôi chỉ việc copy thành 1 file để antigravity đọc
+
+ngôn ngữ: python
+mỗi module là 1 folder độc lập, để sau tôi tách làm containter riêng biệt
+
+module mcp-server
+- fastmcp
+
+module mcp-client
+- fastapi để tạo api/search
+step 1. gọi đến mcp-server
+step 2. mcp-server gọi đến search-api
+step 3. search-api query vào vector database rồi trả về cho mcp-server
+step 4. mcp-server trả về mcp-client
+step 4: mcp-client nhận response kết hợp với Azure Open AI(LLM) để trả lời
+
+module search-server
+- rag, vector database: qdrant
+- embedding: text-embedding-3-large, dùng của Azure Open AI
+- fastapi
+- cho phép upload tài liệu(text + ảnh, file pdf) embedding rồi lưu vào trong qdrant
+
+| Module            | Role                      |
+| ----------------- | ------------------------- |
+| mcp-server        | Agent Brain + Tool Router |
+| search-server     | RAG Retrieval Tool        |
+| mcp-client        | UI / API Gateway          |
+| ingestion-service | Upload + Chunk + Embed    |

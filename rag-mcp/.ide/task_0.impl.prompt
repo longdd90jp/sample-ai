@@ -1,0 +1,49 @@
+# TASK: Implement RAG + MCP + Agentic AI Demo Structure
+
+**GOAL**: Initialize the project structure and scaffolding for the RAG-MCP demo based on the Master Plan.
+
+**CONTEXT**:
+We are building a modular microservices demo combining MCP Agent Orchestration, RAG Retrieval, and Azure OpenAI.
+The architecture consists of 4 main modules:
+1. `mcp-server`: The Agent Brain (FastMCP)
+2. `search-server`: The RAG Retrieval API (FastAPI + Qdrant)
+3. `ingestion-service`: Document upload & embedding (FastAPI)
+4. `mcp-client`: API Gateway / UI (FastAPI)
+
+**INSTRUCTIONS**:
+
+1. **Create Directory Structure**:
+   Ensure the following directories exist under `rag-mcp/`:
+   - `mcp-server/`
+   - `search-server/`
+   - `ingestion-service/`
+   - `mcp-client/`
+
+2. **Scaffold `mcp-server` (Agent Brain)**:
+   - Create `mcp-server/main.py` demonstrating a basic FastMCP server setup.
+   - Include a placeholder tool for `search_knowledge_base`.
+   - Setup `requirements.txt` with `fastmcp`, `openai`, `python-dotenv`.
+
+3. **Scaffold `search-server` (RAG API)**:
+   - Create `search-server/main.py` with a basic FastAPI app.
+   - Add a `/search` endpoint stub.
+   - Setup `requirements.txt` with `fastapi`, `uvicorn`, `qdrant-client`, `openai`.
+
+4. **Scaffold `ingestion-service`**:
+   - Create `ingestion-service/main.py` with a basic FastAPI app.
+   - Add `/upload` and `/embed` endpoint stubs.
+   - Setup `requirements.txt`.
+
+5. **Scaffold `mcp-client`**:
+   - Create `mcp-client/main.py` with FastAPI.
+   - Add a route that simulates a user query.
+
+6. **Shared Configuration**:
+   - Create a global `.env.example` in `rag-mcp/` with placeholders for:
+     - `AZURE_OPENAI_API_KEY`
+     - `AZURE_OPENAI_ENDPOINT`
+     - `QDRANT_URL`
+
+**OUTPUT**:
+- Generate the file structure and initial code for all modules.
+- Ensure the code is valid Python and can be expanded upon.
