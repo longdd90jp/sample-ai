@@ -72,15 +72,20 @@ def upsert_embeddings(texts: List[str], embeddings: List[List[float]], metadata:
     ids = []
     doc_id = metadata.get("doc_id") or str(uuid4())
     for idx, (text, vector) in enumerate(zip(texts, embeddings)):
-        point_id = f"{doc_id}-{idx}"
+        point_id = str(uuid4())
         ids.append(point_id)
-        payload = {"text": text, **metadata, "doc_id": doc_id}
+        payload = {
+            "text": text,
+            **metadata,
+            "doc_id": doc_id,
+            "chunk_index": idx,
+        }
         points.append(PointStruct(id=point_id, vector=vector, payload=payload))
     qdrant.upsert(collection_name=QDRANT_COLLECTION, points=points)
     return ids
 
 
-@app.post("/upload")
+@app.post("/api/upload")
 async def upload(file: UploadFile = File(...)):
     if not file.filename:
         raise HTTPException(status_code=400, detail="Missing filename")
@@ -97,7 +102,7 @@ async def upload(file: UploadFile = File(...)):
     return {"filename": file.filename, "chunks": len(chunks), "ids": ids}
 
 
-@app.post("/embed")
+@app.post("/api/embed")
 async def embed(request: EmbedRequest):
     if not request.text.strip():
         raise HTTPException(status_code=400, detail="Text is empty")
