@@ -1,0 +1,56 @@
+You are a senior Python engineer and RAG architect.
+
+TASK:
+Refactor the current embedding + ingestion pipeline to support a Q&A chatbot dataset where each record has:
+- category
+- question
+- answer
+
+GOAL:
+Optimize embeddings for retrieval based on user questions, while returning full answers.
+
+REQUIREMENTS:
+
+1. Each Q&A record must be embedded as a SINGLE vector.
+2. The embedding input text format must follow this template:
+
+   Category: {category}
+   Question: {question}
+   Answer: {answer}
+
+3. Store embeddings in Qdrant with metadata fields:
+   - category
+   - question
+   - answer
+   - source
+
+4. The ingestion pipeline must:
+   - Load Q&A data from JSON or JSONL
+   - Validate required fields
+   - Normalize text (trim spaces, remove duplicates)
+   - Generate embeddings using Azure OpenAI text-embedding-3-large
+   - Insert into Qdrant collection
+   - Batch insert vectors efficiently
+
+5. The search API must:
+   - Embed user query
+   - Query Qdrant using vector similarity
+
+6. Add an option to filter results by category.
+
+7. Follow clean architecture principles:
+  ├── api.py              # FastAPI routes
+  ├── embeddings.py       # Azure OpenAI embedding logic
+  ├── ingestion.py        # Load + validate + embed + upload
+  ├── qdrant_client.py    # Vector DB wrapper
+  ├── config.py           # Env & settings
+  └── utils.py            # (optional) normalize helpers
+
+8. Code must be:
+   - Modular
+   - Production-ready
+   - Commented
+   - Easy to extend for MCP tool usage later
+
+OUTPUT:
+Return updated Python source code with clear file separation and inline comments explaining decisions.
