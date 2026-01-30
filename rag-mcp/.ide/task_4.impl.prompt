@@ -1,0 +1,117 @@
+You are a senior Python engineer refactoring a RAG Q&A microservices system.
+
+CURRENT STATE:
+The ingestion-service currently handles:
+- Upload to Qdrant
+- Upsert to Qdrant
+- Insert to MongoDB
+- Search queries
+
+TASK:
+Refactor the codebase to move ALL search-related logic into a new independent module called `search-server`.
+
+TARGET ARCHITECTURE:
+- ingestion-service → handles ONLY write operations (upload / upsert)
+- search-server → handles ONLY search and retrieval
+
+--------------------------------------------------
+SEARCH-SERVER RESPONSIBILITIES
+--------------------------------------------------
+
+Create a new folder/module: `search-server/`
+
+The search-server must:
+1. Expose a FastAPI endpoint:
+   POST /search
+
+2. Implement TWO-STAGE SEARCH LOGIC:
+
+PRIMARY SEARCH:
+- Embed user query
+- Search Qdrant using `question_vector`
+- If top similarity score >= threshold (configurable):
+    - Return mode = "direct_answer"
+    - Fetch answer from MongoDB using doc_id
+
+FALLBACK SEARCH:
+- If score < threshold:
+    - Search Qdrant using `answer_vector`
+    - Return TOP 3 matching QUESTIONS from MongoDB
+    - mode = "suggest_questions"
+
+--------------------------------------------------
+DATA SOURCES
+--------------------------------------------------
+
+MongoDB:
+- Fetch question + answer using doc_id
+- Mongo is the source of truth
+
+Qdrant:
+- Contains only:
+    - doc_id
+    - question_vector
+    - answer_vector
+
+--------------------------------------------------
+INPUT FORMAT (SEARCH API)
+--------------------------------------------------
+
+POST /search
+{
+  "query": "user question here",
+  "top_k": 3
+}
+
+--------------------------------------------------
+OUTPUT FORMAT
+--------------------------------------------------
+
+If confident match:
+{
+  "mode": "direct_answer",
+  "doc_id": "...",
+  "question": "...",
+  "answer": "...",
+  "score": 0.91
+}
+
+If fallback suggestion:
+{
+  "mode": "suggest_questions",
+  "suggestions": [
+    { "doc_id": "...", "question": "...", "score": 0.77 }
+  ]
+}
+
+--------------------------------------------------
+FILE STRUCTURE FOR SEARCH-SERVER
+--------------------------------------------------
+
+search-server/
+ ├── api.py               # FastAPI routes
+ ├── embeddings.py        # Azure OpenAI embedding logic
+ ├── qdrant_client.py     # Vector search wrapper
+ ├── mongo_client.py      # MongoDB lookup
+ ├── search_service.py    # Two-stage search logic
+ ├── config.py            # ENV & threshold
+ └── main.py              # FastAPI app bootstrap
+
+--------------------------------------------------
+REQUIREMENTS
+--------------------------------------------------
+
+- Remove search logic completely from ingestion-service
+- Keep ingestion-service write-only
+- Keep search-server read-only
+- Configurable similarity threshold
+- Clean modular Python
+- Batch-safe & production-ready
+- No overengineering
+- Clear inline comments
+
+--------------------------------------------------
+OUTPUT EXPECTATION
+--------------------------------------------------
+
+Generate full working Python code for search-server and refactor ingestion-service to remove search logic.
