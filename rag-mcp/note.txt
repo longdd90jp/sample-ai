@@ -5,3 +5,4 @@ python test-fine-tune.py
 python main.py
 
 python -m debugpy --listen 0.0.0.0:5678 --wait-for-client main.py
+python -m debugpy --listen 0.0.0.0:5678 --wait-for-client -m uvicorn api:app --reload --host 0.0.0.0 --port 8002

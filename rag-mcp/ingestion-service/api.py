@@ -8,6 +8,7 @@ from embeddings import EmbeddingClient
 from ingestion import ingest_records, ingest_raw
 from mongo_client import MongoStore
 from vector_store import QdrantStore
+from bson import ObjectId
 
 app = FastAPI(title="ingestion-service")
 router = APIRouter(prefix="/api")
@@ -84,7 +85,7 @@ async def search(request: SearchRequest):
         vector_name=settings.answer_vector_name,
     )
     doc_ids = [((hit.payload or {}).get("doc_id")) for hit in answer_hits]
-    docs = mongo.get_by_doc_ids([doc_id for doc_id in doc_ids if doc_id])
+    docs = mongo.get_by_ids([doc_id for doc_id in doc_ids if doc_id])
     docs_by_id = {doc["doc_id"]: doc for doc in docs if "doc_id" in doc}
 
     suggestions = []
