@@ -2,18 +2,11 @@ import json
 from typing import Any, Dict, Iterable, List, Tuple
 
 from embeddings import EmbeddingClient
-from qdrant_client import QdrantStore
+from mongo_client import MongoStore
+from vector_store import QdrantStore
 from utils import dedupe_records, normalize_record
 
-REQUIRED_FIELDS = ("category", "question", "answer")
-
-
-def build_embedding_text(record: Dict[str, str]) -> str:
-    return (
-        f"Category: {record['category']}\n"
-        f"Question: {record['question']}\n"
-        f"Answer: {record['answer']}"
-    )
+REQUIRED_FIELDS = ("doc_id", "question", "answer")
 
 
 def parse_json_records(raw: str) -> List[Dict[str, Any]]:
@@ -35,8 +28,10 @@ def parse_jsonl_records(raw: str) -> List[Dict[str, Any]]:
     return records
 
 
-def validate_records(records: Iterable[Dict[str, Any]]) -> Tuple[List[Dict[str, str]], List[Dict[str, Any]]]:
-    valid: List[Dict[str, str]] = []
+def validate_records(
+    records: Iterable[Dict[str, Any]],
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    valid: List[Dict[str, Any]] = []
     invalid: List[Dict[str, Any]] = []
     for record in records:
         if not all(field in record and isinstance(record[field], str) for field in REQUIRED_FIELDS):
@@ -44,12 +39,15 @@ def validate_records(records: Iterable[Dict[str, Any]]) -> Tuple[List[Dict[str, 
             continue
         normalized = normalize_record(
             {
-                "category": record["category"],
+                "doc_id": record["doc_id"],
                 "question": record["question"],
                 "answer": record["answer"],
-                "source": str(record.get("source", "ingestion")),
             }
         )
+        metadata = record.get("metadata", {})
+        if not isinstance(metadata, dict):
+            metadata = {"metadata": str(metadata)}
+        normalized["metadata"] = metadata
         valid.append(normalized)
     return valid, invalid
 
@@ -60,30 +58,26 @@ def load_records(raw: str, filename: str) -> List[Dict[str, Any]]:
     return parse_json_records(raw)
 
 
-def ingest_records(raw: str, filename: str, batch_size: int) -> Dict[str, Any]:
-    records = load_records(raw, filename)
+def ingest_records(records: List[Dict[str, Any]], batch_size: int) -> Dict[str, Any]:
     valid, invalid = validate_records(records)
     unique = dedupe_records(valid)
 
     embedder = EmbeddingClient()
-    store = QdrantStore()
+    qdrant = QdrantStore()
+    mongo = MongoStore()
 
     ids: List[str] = []
+    # mongo.upsert_many(unique)
+
     # Batch embedding + upsert for better throughput.
     for i in range(0, len(unique), batch_size):
         batch = unique[i : i + batch_size]
-        texts = [build_embedding_text(item) for item in batch]
-        vectors = embedder.embed_texts(texts)
-        payloads = [
-            {
-                "category": item["category"],
-                "question": item["question"],
-                "answer": item["answer"],
-                "source": item["source"],
-            }
-            for item in batch
-        ]
-        ids.extend(store.upsert_records(vectors, payloads))
+        doc_ids = [item["doc_id"] for item in batch]
+        question_texts = [item["question"] for item in batch]
+        answer_texts = [item["answer"] for item in batch]
+        question_vectors = embedder.embed_texts(question_texts)
+        answer_vectors = embedder.embed_texts(answer_texts)
+        ids.extend(qdrant.upsert_records(doc_ids, question_vectors, answer_vectors))
 
     return {
         "received": len(records),
@@ -92,3 +86,8 @@ def ingest_records(raw: str, filename: str, batch_size: int) -> Dict[str, Any]:
         "inserted": len(ids),
         "ids": ids,
     }
+
+
+def ingest_raw(raw: str, filename: str, batch_size: int) -> Dict[str, Any]:
+    records = load_records(raw, filename)
+    return ingest_records(records, batch_size)

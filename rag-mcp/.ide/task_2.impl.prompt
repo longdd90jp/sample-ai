@@ -1,0 +1,51 @@
+You are a senior Python engineer implementing a Q&A chatbot search pipeline.
+
+TASK:
+Refactor the search logic to follow a TWO-STAGE retrieval strategy using Qdrant.
+
+DATA FORMAT:
+Each record stored in Qdrant contains:
+- category
+- question
+- answer
+
+VECTOR STORAGE RULES:
+Each record must store TWO embeddings:
+1) question_vector → embedding of the QUESTION text
+2) answer_vector → embedding of the ANSWER text
+
+PRIMARY SEARCH FLOW:
+1. Embed the user query
+2. Search against question_vector
+3. If top similarity score >= 0.82:
+   - Return the corresponding ANSWER directly
+   - Mode = "direct_answer"
+
+FALLBACK SEARCH FLOW:
+4. If top score < 0.82:
+   - Search against answer_vector
+   - Return TOP 3 matching QUESTIONS
+   - Mode = "suggest_questions"
+
+API RESPONSE FORMAT:
+If direct answer:
+{
+  "mode": "direct_answer",
+  "answer": "...",
+  "category": "..."
+}
+
+If fallback suggestions:
+{
+  "mode": "suggest_questions",
+  "suggestions": [
+     {"question": "...", "category": "..."}
+  ]
+}
+
+CODE REQUIREMENTS:
+- Implement inside api.py search endpoint
+- Use embeddings.py to generate vectors
+- Use qdrant_client.py to query by vector field name
+- Configurable threshold in config.py
+- Keep code minimal, clean, production-ready

@@ -3,3 +3,5 @@ python -m venv .venv
 pip install -r requirements.txt
 python test-fine-tune.py
 python main.py
+
+python -m debugpy --listen 0.0.0.0:5678 --wait-for-client main.py

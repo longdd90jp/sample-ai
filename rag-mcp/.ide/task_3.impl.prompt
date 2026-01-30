@@ -1,0 +1,74 @@
+You are a senior Python engineer building a Q&A embedding + vector indexing service.
+
+GOAL:
+Refactor the existing service to use MongoDB as the primary data store and Qdrant ONLY as a vector index.
+
+DATA ARCHITECTURE:
+- MongoDB stores full FAQ records: doc_id, question, answer, metadata
+- Qdrant stores ONLY vector embeddings and doc_id references
+
+QDRANT SCHEMA:
+Each point must contain:
+- id (uuid)
+- payload: { doc_id }
+- vectors:
+    - question_vector = embedding(question)
+    - answer_vector = embedding(answer)
+
+INPUT DATA FORMAT (for upload & upsert):
+JSON array of objects:
+[
+  { "doc_id": "...", "question": "...", "answer": "..." }
+]
+
+API ENDPOINTS:
+
+POST /upload
+- Accept JSON file upload
+- Parse array of FAQ records
+- Validate required fields
+- Generate question_vector and answer_vector
+- Insert into Qdrant in batches
+
+POST /upsert
+- Accept JSON body array of FAQ records
+- If doc_id exists in Qdrant → update vectors
+- If doc_id does not exist → insert new record
+
+POST /search
+SEARCH FLOW (TWO-STAGE):
+
+Stage 1: Primary search on question_vector
+- Embed user query
+- Query Qdrant using question_vector
+- If top similarity score >= configurable threshold (e.g. 0.82):
+    - Return doc_id with mode = "direct_answer"
+
+Stage 2: Fallback search on answer_vector
+- If confidence < threshold:
+    - Search answer_vector
+    - Return top 3 matching doc_id values
+    - mode = "suggest_questions"
+
+MongoDB INTEGRATION:
+- After selecting doc_id, fetch question + answer from MongoDB
+- Do NOT store answer text in Qdrant
+
+FILE STRUCTURE:
+- embeddings.py        → Azure OpenAI embedding logic
+- ingestion.py         → upload & upsert logic
+- api.py               → FastAPI endpoints (/upload, /upsert, /search)
+- qdrant_client.py     → Qdrant wrapper
+- mongo_client.py      → MongoDB lookup wrapper
+- config.py            → environment & thresholds
+
+REQUIREMENTS:
+- Batch embeddings for performance
+- Handle retries & API rate limits
+- Configurable similarity threshold
+- Clean, minimal, production-ready Python
+- Type hints where helpful
+- No overengineering
+
+OUTPUT:
+Rewrite the service to implement the above architecture with complete working code.

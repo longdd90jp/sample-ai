@@ -1,3 +1,4 @@
+import time
 from typing import Iterable, List
 
 from openai import AzureOpenAI
@@ -16,9 +17,17 @@ class EmbeddingClient:
         )
 
     def embed_texts(self, texts: Iterable[str]) -> List[List[float]]:
-        # One record -> one vector for Q&A retrieval.
-        response = self.client.embeddings.create(
-            model=settings.azure_openai_embedding_deployment,
-            input=list(texts),
-        )
-        return [item.embedding for item in response.data]
+        # One text -> one vector (question/answer handled by caller).
+        payload = list(texts)
+        for attempt in range(settings.embedding_max_retries):
+            try:
+                response = self.client.embeddings.create(
+                    model=settings.azure_openai_embedding_deployment,
+                    input=payload,
+                )
+                return [item.embedding for item in response.data]
+            except Exception:
+                if attempt == settings.embedding_max_retries - 1:
+                    raise
+                time.sleep(settings.embedding_retry_backoff ** attempt)
+        return []

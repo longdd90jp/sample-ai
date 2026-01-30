@@ -11,6 +11,27 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
     restart: "no"
+  mongodb:
+    container_name: rag-mcp-mongodb
+    image: mongo:8.2.3-noble
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    restart: "no"
+  mongo-express:
+    container_name: rag-mcp-mongo-express
+    image: mongo-express:1.0.2
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: "27017"
+      ME_CONFIG_BASICAUTH: "false"
+    depends_on:
+      - mongodb
+    restart: "no"
 
 volumes:
   qdrant_data:
+  mongodata:

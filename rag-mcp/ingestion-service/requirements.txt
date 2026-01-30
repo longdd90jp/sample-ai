@@ -4,3 +4,5 @@ qdrant-client
 openai
 python-dotenv
 python-multipart
+pymongo
+debugpy
