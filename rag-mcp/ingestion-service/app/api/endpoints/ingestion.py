@@ -1,20 +1,12 @@
 from typing import List
 
-from fastapi import APIRouter, FastAPI, File, HTTPException, UploadFile
-from pydantic import BaseModel
+from fastapi import APIRouter, File, HTTPException, UploadFile
 
-from config import settings
-from ingestion import ingest_records, ingest_raw
+from app.core.config import settings
+from app.schemas.faq import FAQRecord
+from app.services.ingestion import ingest_records, ingest_raw
 
-app = FastAPI(title="ingestion-service")
-router = APIRouter(prefix="/api")
-
-
-class FAQRecord(BaseModel):
-    doc_id: str
-    question: str
-    answer: str
-    metadata: Optional[dict] = None
+router = APIRouter()
 
 
 @router.post("/upload")
@@ -37,6 +29,3 @@ async def upsert(records: List[FAQRecord]):
         raise HTTPException(status_code=400, detail="No records provided")
     payloads = [record.dict() for record in records]
     return ingest_records(payloads, settings.qdrant_batch_size)
-
-
-app.include_router(router)

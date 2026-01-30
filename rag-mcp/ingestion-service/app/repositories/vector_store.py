@@ -12,15 +12,17 @@ from qdrant_client.http.models import (
     VectorParams,
 )
 
-from config import settings
+from app.core.config import settings
 
 
 class QdrantStore:
+    """Thin wrapper around Qdrant for FAQ vector storage and search."""
+
     def __init__(self) -> None:
         self.client = QdrantClient(url=settings.qdrant_url)
 
     def ensure_collection(self, vector_size: int) -> None:
-        # Lazily create collection with named vectors.
+        """Create the collection with named vectors if it does not exist."""
         collections = self.client.get_collections().collections
         if any(c.name == settings.qdrant_collection for c in collections):
             return
@@ -37,6 +39,7 @@ class QdrantStore:
         )
 
     def _find_point_id(self, doc_id: str) -> Optional[str]:
+        """Return existing point id for a doc_id, if any."""
         query_filter = Filter(
             must=[FieldCondition(key="doc_id", match=MatchValue(value=doc_id))]
         )
@@ -57,6 +60,7 @@ class QdrantStore:
         question_vectors: Iterable[List[float]],
         answer_vectors: Iterable[List[float]],
     ) -> List[str]:
+        """Upsert question/answer vectors keyed by doc_id and return point ids."""
         doc_list = list(doc_ids)
         question_list = list(question_vectors)
         answer_list = list(answer_vectors)
@@ -89,6 +93,7 @@ class QdrantStore:
         top_k: int,
         vector_name: str,
     ):
+        """Search for nearest vectors using the best available client method."""
         if hasattr(self.client, "search"):
             return self.client.search(
                 collection_name=settings.qdrant_collection,

@@ -1,0 +1,96 @@
+# Task 6: Restructure Ingestion Service to Layered Architecture
+
+## Goal
+Restructure `ingestion-service` from a flat file structure to a layered architecture (`app/` folder with `api`, `core`, `services`, `repositories`, `schemas`).
+
+## Context
+Current files in `rag-mcp/ingestion-service`:
+- `api.py`: FastAPI app and routes.
+- `config.py`: Settings.
+- `embeddings.py`: Embedding logic.
+- `ingestion.py`: Ingestion logic.
+- `vector_store.py`: Qdrant logic.
+- `mongo_client.py` (Should be deleted already, ignore if present).
+- `main.py`: Entry point.
+- `utils.py`: Utilities.
+
+## Instructions
+
+### 1. Create Directory Structure
+Create the following directory structure inside `rag-mcp/ingestion-service`:
+```
+app/
+    __init__.py
+    main.py
+    api/
+        __init__.py
+        router.py
+        endpoints/
+            __init__.py
+            ingestion.py
+    core/
+        __init__.py
+        config.py
+    repositories/
+        __init__.py
+        vector_store.py
+    schemas/
+        __init__.py
+        faq.py
+    services/
+        __init__.py
+        embeddings.py
+        ingestion.py
+```
+
+### 2. Move and Refactor Files
+
+#### **Core Layer**
+- **Move** `config.py` to `app/core/config.py`.
+- **Move** `utils.py` to `app/core/utils.py` (if it exists).
+
+#### **Schemas Layer**
+- **Create** `app/schemas/faq.py`:
+    - Extract `FAQRecord` Pydantic model from `api.py` and place it here.
+
+#### **Repositories Layer**
+- **Move** `vector_store.py` to `app/repositories/vector_store.py`.
+    - Update imports: `from app.core.config import settings`.
+
+#### **Services Layer**
+- **Move** `embeddings.py` to `app/services/embeddings.py`.
+    - Update imports: `from app.core.config import settings`.
+- **Move** `ingestion.py` to `app/services/ingestion.py`.
+    - Update imports:
+        - `from app.services.embeddings import EmbeddingClient`
+        - `from app.repositories.vector_store import QdrantStore`
+        - `from app.core.utils import ...`
+        - `from app.core.config import settings`
+
+#### **API Layer**
+- **Create** `app/api/endpoints/ingestion.py`:
+    - Move logic from `api.py` (endpoints `/upload` and `/upsert`) to here.
+    - Create a router: `router = APIRouter()`.
+    - Update imports to point to new service and schema locations.
+- **Create** `app/api/router.py`:
+    - Create a main `api_router = APIRouter()`.
+    - Include the ingestion router: `api_router.include_router(ingestion.router, prefix="/ingestion", tags=["ingestion"])` (or keep empty prefix if you want raw `/api/upload` - but `/api/ingestion/upload` is cleaner. User accepted default/flat, so maybe just `include_router(ingestion.router)`).
+    - **Decision**: Let's organize it as `api_router.include_router(ingestion.router, tags=["ingestion"])`.
+
+#### **Application Entry**
+- **Create** `app/main.py`:
+    - Initialize `app = FastAPI(...)`.
+    - `from app.api.router import api_router`.
+    - `app.include_router(api_router, prefix="/api")`.
+- **Update** root `main.py` (if kept) or delete it. If keeping:
+    - `from app.main import app`
+    - `uvicorn.run(app, ...)`
+
+### 3. Cleanup
+- **Delete** `api.py` (original).
+- **Checks**: Ensure all imports in the new files are corrected to use the `app.*` absolute path pattern.
+
+## Expected Outcome
+- A clean, layered architecture in `ingestion-service`.
+- Application runs with `uvicorn app.main:app`.
+- Endpoints available at `/api/upload` (or `/api/ingestion/upload` depending on router config).

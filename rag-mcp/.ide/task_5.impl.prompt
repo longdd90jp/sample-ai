@@ -1,0 +1,39 @@
+# Task 5: Cleanup and Update Ingestion Service
+
+## Goal
+Remove MongoDB logic (data ingestion moved elsewhere), switch embedding model to `BAAI/bge-m3`, and improve code readability with comments.
+
+## Instructions
+
+### 1. Remove MongoDB Logic
+- **Delete File**: `mongo_client.py`.
+- **Modify** `ingestion.py`:
+    - Remove imports related to `mongo_client`.
+    - Remove initialization of `MongoStore`.
+    - Remove any calls to mongo (e.g., `mongo.upsert_many`).
+- **Modify** `config.py`:
+    - Remove `MONGO_URI`, `MONGO_DB`, and `MONGO_COLLECTION` settings.
+- **Modify** `requirements.txt`:
+    - Remove `pymongo`.
+
+### 2. Switch Embedding Model
+- **Target Model**: `BAAI/bge-m3` (Output Dimension: 1024).
+- **Modify** `embeddings.py`:
+    - Replace `AzureOpenAI` client with `fastembed` (recommended) or `sentence-transformers`.
+    - Initialize the model `BAAI/bge-m3`.
+    - Ensure `embed_texts` returns vectors of size 1024.
+- **Modify** `config.py`:
+    - Remove `AZURE_OPENAI_*` keys.
+    - Add `EMBEDDING_MODEL_NAME` (default: "BAAI/bge-m3") if helpful.
+- **Modify** `requirements.txt`:
+    - Remove `openai`.
+    - Add `fastembed` (or `sentence-transformers`).
+
+### 3. Documentation & Comments
+- Add clear comments and docstrings to `ingestion.py`, `embeddings.py`, and `vector_store.py`.
+- Explain the flow of data: Validation -> Deduplication -> Embedding -> Qdrant Upsert.
+
+## Expected Outcome
+- Cleaned up codebase without unused database logic.
+- Service uses local BGE-M3 model for high-quality embeddings.
+- Code is well-documented and easy to follow.
