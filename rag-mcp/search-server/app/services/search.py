@@ -1,14 +1,14 @@
 from typing import Any, Dict, List, Optional
 
-from config import settings
-from embeddings import EmbeddingClient
-from mongo_client import MongoStore
-from vector_store import QdrantStore
+from app.core.config import settings
+from app.repositories.mongo_store import MongoStore
+from app.repositories.vector_store import QdrantStore
+from app.services.embeddings import get_embedding_client
 
 
 class SearchService:
     def __init__(self) -> None:
-        self.embedder = EmbeddingClient()
+        self.embedder = get_embedding_client()
         self.qdrant = QdrantStore()
         self.mongo = MongoStore()
 

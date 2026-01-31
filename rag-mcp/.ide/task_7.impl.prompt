@@ -1,0 +1,103 @@
+# Task 7: Refactor Search Server
+
+## Goal
+Restructure `rag-mcp/search-server` to a layered architecture and update the embedding logic to match `ingestion-service` (Local BGE-M3 with Singleton).
+
+## Context
+- **Source**: `rag-mcp/search-server/`
+- **Target Structure**: Standard `app/` layout.
+- **Embedding Model**: `BAAI/bge-m3` using `sentence-transformers` (Local).
+
+## Instructions
+
+### 1. Create Directory Structure
+Inside `rag-mcp/search-server`, create:
+```
+app/
+    __init__.py
+    main.py
+    api/
+        __init__.py
+        router.py
+        endpoints/
+            __init__.py
+            search.py
+    core/
+        __init__.py
+        config.py
+    repositories/
+        __init__.py
+        mongo_store.py  # Renamed from mongo_client.py
+        vector_store.py
+    schemas/
+        __init__.py
+        search.py
+    services/
+        __init__.py
+        embeddings.py
+        search.py       # Renamed from search_service.py
+```
+
+### 2. Move and Refactor Files
+
+#### **Core Layer**
+- **Move** `config.py` to `app/core/config.py`.
+    - **Update** logic: Remove Azure OpenAI settings. Add `EMBEDDING_MODEL_NAME` (default "BAAI/bge-m3").
+
+#### **Schemas Layer**
+- **Create** `app/schemas/search.py`:
+    - Extract `SearchRequest` from `api.py`.
+
+#### **Repositories Layer**
+- **Move** `mongo_client.py` to `app/repositories/mongo_store.py` (Rename class to `MongoRepository` if desired, or keep `MongoStore`).
+    - Update imports (config).
+- **Move** `vector_store.py` to `app/repositories/vector_store.py`.
+    - Update imports (config).
+
+#### **Services Layer**
+- **Refactor** `embeddings.py` -> `app/services/embeddings.py`:
+    - **Replace** OpenAI/AzureContent with `sentence-transformers` logic.
+    - **Implement Singleton**:
+      ```python
+      from functools import lru_cache
+      from sentence_transformers import SentenceTransformer
+      from app.core.config import settings
+
+      class EmbeddingClient:
+          def __init__(self):
+              self.model = SentenceTransformer(settings.embedding_model_name)
+              self.expected_dim = 1024
+          
+          def embed_texts(self, texts):
+              # ... same logic as ingestion-service ...
+      
+      @lru_cache()
+      def get_embedding_client() -> EmbeddingClient:
+          return EmbeddingClient()
+      ```
+- **Move** `search_service.py` -> `app/services/search.py`:
+    - Update imports to use `app.repositories.*` and `app.services.embeddings`.
+    - **Important**: Use `get_embedding_client()` instead of `EmbeddingClient()`.
+
+#### **API Layer**
+- **Create** `app/api/endpoints/search.py`:
+    - Move logic from `api.py` (`/search` endpoint).
+    - Use `SearchRequest` from schemas.
+    - Use `SearchService` (ensure service is initialized properly, or better yet, depend on a `get_search_service` dependency if possible, otherwise `service = SearchService()` at module level is fine for now).
+- **Create** `app/api/router.py`:
+    - `include_router(search.router, tags=["search"])`.
+
+#### **App Entry**
+- **Create** `app/main.py`:
+    - FastAPI app init.
+    - Include `api_router`.
+- **Update** `requirements.txt`:
+    - Remove `openai`.
+    - Add `sentence-transformers`, `torch` (if needed explicitly), `fastapi`, `uvicorn`, `pymongo`, `qdrant-client`, `python-dotenv`.
+
+### 3. Cleanup
+- Delete `api.py`, `search_service.py`, `mongo_client.py`, `vector_store.py` (old locations).
+
+## Expected Outcome
+- `search-server` has the same structure as `ingestion-service`.
+- Uses local BGE-M3 model without reloading weights on every request.

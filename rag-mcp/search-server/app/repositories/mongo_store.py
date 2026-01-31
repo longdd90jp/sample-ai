@@ -2,7 +2,7 @@ from typing import Any, Dict, Iterable, List, Optional
 
 from pymongo import MongoClient
 
-from config import settings
+from app.core.config import settings
 
 
 class MongoStore:

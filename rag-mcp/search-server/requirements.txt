@@ -1,6 +1,8 @@
-﻿fastapi
+fastapi
 uvicorn
 qdrant-client
-openai
-python-dotenv
 pymongo
+python-dotenv
+sentence-transformers
+torch
+debugpy

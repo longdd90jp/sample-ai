@@ -3,7 +3,7 @@ from typing import List
 
 from qdrant_client import QdrantClient
 
-from config import settings
+from app.core.config import settings
 
 
 class QdrantStore:
