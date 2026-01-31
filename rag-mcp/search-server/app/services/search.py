@@ -24,7 +24,7 @@ class SearchService:
             top_hit = question_hits[0]
             if top_hit.score >= settings.search_threshold:
                 doc_id = (top_hit.payload or {}).get("doc_id")
-                document = self.mongo.get_by_doc_id(doc_id) if doc_id else None
+                document = self.mongo.get_by_id(doc_id) if doc_id else None
                 return {
                     "mode": "direct_answer",
                     "doc_id": doc_id,
@@ -40,7 +40,7 @@ class SearchService:
             vector_name=settings.answer_vector_name,
         )
         doc_ids = [((hit.payload or {}).get("doc_id")) for hit in answer_hits]
-        docs = self.mongo.get_by_doc_ids([doc_id for doc_id in doc_ids if doc_id])
+        docs = self.mongo.get_by_ids([doc_id for doc_id in doc_ids if doc_id])
         docs_by_id = {doc["doc_id"]: doc for doc in docs if "doc_id" in doc}
 
         suggestions: List[Dict[str, Any]] = []
