@@ -1,0 +1,72 @@
+# Task: Implement FAQ Web App (FastAPI + Vue 3)
+
+You are tasked with building a FAQ Management System in the folder `rag-mcp/web-app`.
+This system consists of two parts: a Python Backend (`api`) and a Vue.js Frontend (`web`).
+
+## 1. Project Structure
+Create the following directory structure if it doesn't exist:
+- `rag-mcp/web-app/api`
+- `rag-mcp/web-app/web`
+
+## 2. Backend API (Python/FastAPI)
+**Location**: `rag-mcp/web-app/api`
+**Tech Stack**: FastAPI, Motor (Async MongoDB Driver), Pydantic.
+
+### Database Schema (MongoDB)
+- **Database**: `faq_system`
+- **Collection**: `faq_categories`
+  - Fields: `_id` (ObjectId), `name` (str), `description` (str, optional).
+- **Collection**: `faq_records`
+  - Fields: `_id` (ObjectId), `cate_id` (ObjectId, ref to category), `question` (str), `answer` (str), `created_at` (datetime).
+
+### Implementation Requirements
+1.  **`requirements.txt`**: Include `fastapi`, `uvicorn`, `motor`, `pydantic`.
+2.  **`database.py`**:
+    - Setup Async MongoDB connection using `motor`.
+    - Provide helper functions to get collections.
+3.  **`models.py`**:
+    - Pydantic models for `Category` (Create, Update, Response).
+    - Pydantic models for `Question` (Create, Update, Response).
+    - Ensure `_id` is handled correctly (converted to string in responses).
+4.  **`routes/categories.py`**:
+    - `GET /categories`: List all categories.
+    - `POST /categories`: Create a category.
+    - `PUT /categories/{id}`: Update a category.
+    - `DELETE /categories/{id}`: Delete a category.
+5.  **`routes/questions.py`**:
+    - `GET /questions`: List all questions.
+    - `POST /questions`: Create a question (validate `cate_id`).
+    - `PUT /questions/{id}`: Update a question.
+    - `DELETE /questions/{id}`: Delete a question.
+6.  **`main.py`**:
+    - Initialize FastAPI app.
+    - Configure CORS to allow requests from the frontend (e.g., `http://localhost:5173`).
+    - Include routers from `routes`.
+
+## 3. Frontend Web App (Vue 3 + Vite)
+**Location**: `rag-mcp/web-app/web`
+**Tech Stack**: Vue 3 (Composition API), Vite, Vanilla CSS.
+
+### Design Aesthetics
+- **Style**: Premium, modern, clean.
+- **CSS**: Use `rag-mcp/web-app/web/src/assets/main.css` for global styles.
+- **Features**: Glassmorphism, smooth gradients, subtle animations, responsive layout.
+
+### Implementation Requirements
+1.  **Scaffolding**: Assume a standard Vite + Vue project structure.
+    - `index.html`, `vite.config.js`, `package.json`.
+2.  **`src/api.js`**:
+    - Setup Axios instance pointing to `http://localhost:8000`.
+3.  **`src/App.vue`**:
+    - Main layout with navigation (Tabs or Sidebar) to switch between "Categories" and "Questions".
+4.  **`src/components/CategoryManager.vue`**:
+    - List categories in a card or grid layout.
+    - Form to Add/Edit Category (Modal or Inline).
+5.  **`src/components/QuestionManager.vue`**:
+    - List questions (accordion or cards).
+    - Dropdown to filter by Category.
+    - Form to Add/Edit Question.
+      - **CRITICAL**: Must interpret `cate_id` by fetching the list of categories and allowing the user to select one via a dropdown.
+
+## Executable Steps for Codex
+Please generate the code for all the files mentioned above. ensure that `main.py` runs the uvicorn server and the frontend is ready to be run with `npm run dev`.
