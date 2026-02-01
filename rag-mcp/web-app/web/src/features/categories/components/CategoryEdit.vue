@@ -7,11 +7,11 @@
           Name
           <input v-model="localForm.name" type="text" placeholder="Category name" />
         </label>
-        <label>
+        <label class="form-label">
           Description
           <textarea
             v-model="localForm.description"
-            rows="3"
+            rows="10"
             placeholder="Optional description"
           />
         </label>

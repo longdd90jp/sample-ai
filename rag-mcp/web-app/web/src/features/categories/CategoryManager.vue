@@ -12,7 +12,7 @@
     <div v-else-if="categories.length === 0" class="empty-state">
       <h3>No categories yet</h3>
       <p>Create the first category to get started.</p>
-      <button class="primary" @click="openCreate">Create Category</button>
+      <button class="primary compact" @click="openCreate">Create Category</button>
     </div>
 
     <CategoryList
@@ -60,7 +60,10 @@ const loadCategories = async () => {
   loading.value = true;
   try {
     const { data } = await api.get("/categories");
-    categories.value = data;
+    categories.value = data.map((item) => ({
+      ...item,
+      id: item.id ?? item._id,
+    }));
   } catch (err) {
     console.error(err);
   } finally {

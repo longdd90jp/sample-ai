@@ -12,13 +12,13 @@
             </option>
           </select>
         </label>
-        <label>
+        <label class="form-label">
           Question
           <input v-model="localForm.question" type="text" placeholder="Ask a question" />
         </label>
-        <label>
+        <label class="form-label">
           Answer
-          <textarea v-model="localForm.answer" rows="4" placeholder="Provide a clear answer" />
+          <textarea v-model="localForm.answer" rows="10" placeholder="Provide a clear answer" />
         </label>
         <p v-if="error" class="error">{{ error }}</p>
         <div class="form-actions">

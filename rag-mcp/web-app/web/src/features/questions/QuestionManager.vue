@@ -17,7 +17,9 @@
     <div v-else-if="questions.length === 0" class="empty-state">
       <h3>No questions yet</h3>
       <p>Add a question and connect it to a category.</p>
-      <button class="primary" @click="openCreate">Create Question</button>
+      <button class="primary compact compact-center" @click="openCreate">
+        Create Question
+      </button>
     </div>
 
     <QuestionList
@@ -84,7 +86,10 @@ const loadData = async () => {
       api.get("/categories"),
       api.get("/questions"),
     ]);
-    categories.value = categoryRes.data;
+    categories.value = categoryRes.data.map((item) => ({
+      ...item,
+      id: item.id ?? item._id,
+    }));
     questions.value = questionRes.data;
   } catch (err) {
     console.error(err);
