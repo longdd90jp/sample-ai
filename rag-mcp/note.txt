@@ -10,8 +10,22 @@ python -m debugpy --listen 0.0.0.0:5678 --wait-for-client -m uvicorn app.main:ap
 
 python -m debugpy --listen 0.0.0.0:5679 --wait-for-client -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
 
+
+# Web App
 cd rag-mcp/web-app/web
 npm run dev
+
+# Web API
 cd rag-mcp/web-app/api
 .venv\Scripts\Activate
 python -m debugpy --listen 0.0.0.0:5677 --wait-for-client -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# Ingestion Service
+cd rag-mcp/ingestion-service
+.venv\Scripts\Activate
+python -m debugpy --listen 0.0.0.0:5678 --wait-for-client -m uvicorn main:app --reload --host 0.0.0.0 --port 8001
+
+# Search Server
+cd rag-mcp/search-server
+.venv\Scripts\Activate
+python -m debugpy --listen 0.0.0.0:5679 --wait-for-client -m uvicorn main:app --reload --host 0.0.0.0 --port 8002

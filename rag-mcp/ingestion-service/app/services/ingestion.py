@@ -98,3 +98,12 @@ def ingest_raw(raw: str, filename: str, batch_size: int) -> Dict[str, Any]:
     """Load records from raw text and ingest them into Qdrant."""
     records = load_records(raw, filename)
     return ingest_records(records, batch_size)
+
+
+def delete_records(doc_ids: List[str]) -> Dict[str, Any]:
+    """Delete records from Qdrant by doc_id."""
+    if not doc_ids:
+        return {"deleted": 0}
+    qdrant = QdrantStore()
+    deleted = qdrant.delete_records(doc_ids)
+    return {"deleted": deleted}

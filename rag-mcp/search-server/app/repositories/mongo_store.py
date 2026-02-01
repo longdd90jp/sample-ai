@@ -17,7 +17,11 @@ class MongoStore:
             object_id = ObjectId(id_str)
         except (InvalidId, TypeError):
             return None
-        return self.collection.find_one({"_id": object_id}, {"_id": 0})
+        doc = self.collection.find_one({"_id": object_id})
+        if not doc:
+            return None
+        doc["_id"] = str(doc["_id"])
+        return doc
 
     def get_by_ids(self, id_strs: Iterable[str]) -> List[Dict[str, Any]]:
         object_ids: List[ObjectId] = []
@@ -28,5 +32,9 @@ class MongoStore:
                 continue
         if not object_ids:
             return []
-        cursor = self.collection.find({"_id": {"$in": object_ids}}, {"_id": 0})
-        return list(cursor)
+        cursor = self.collection.find({"_id": {"$in": object_ids}})
+        docs: List[Dict[str, Any]] = []
+        for doc in cursor:
+            doc["_id"] = str(doc["_id"])
+            docs.append(doc)
+        return docs

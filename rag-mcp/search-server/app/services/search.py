@@ -41,7 +41,7 @@ class SearchService:
         )
         doc_ids = [((hit.payload or {}).get("doc_id")) for hit in answer_hits]
         docs = self.mongo.get_by_ids([doc_id for doc_id in doc_ids if doc_id])
-        docs_by_id = {doc["doc_id"]: doc for doc in docs if "doc_id" in doc}
+        docs_by_id = {doc["_id"]: doc for doc in docs if "_id" in doc}
 
         suggestions: List[Dict[str, Any]] = []
         for hit in answer_hits:

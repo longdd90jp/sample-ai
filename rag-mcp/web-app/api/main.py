@@ -11,7 +11,7 @@ if __package__ is None or __package__ == "":
 from api.routes.categories import router as categories_router
 from api.routes.questions import router as questions_router
 
-app = FastAPI(title="FAQ Management API")
+app = FastAPI(title="FAQ Management API", pre)
 
 app.add_middleware(
     CORSMiddleware,

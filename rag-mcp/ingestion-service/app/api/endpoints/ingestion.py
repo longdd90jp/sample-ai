@@ -3,8 +3,8 @@ from typing import List
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.core.config import settings
-from app.schemas.faq import FAQRecord
-from app.services.ingestion import ingest_records, ingest_raw
+from app.schemas.faq import FAQDeleteRequest, FAQRecord
+from app.services.ingestion import delete_records, ingest_records, ingest_raw
 
 router = APIRouter()
 
@@ -29,3 +29,10 @@ async def upsert(records: List[FAQRecord]):
         raise HTTPException(status_code=400, detail="No records provided")
     payloads = [record.dict() for record in records]
     return ingest_records(payloads, settings.qdrant_batch_size)
+
+
+@router.post("/delete")
+async def delete(request: FAQDeleteRequest):
+    if not request.doc_ids:
+        raise HTTPException(status_code=400, detail="No doc_ids provided")
+    return delete_records(request.doc_ids)

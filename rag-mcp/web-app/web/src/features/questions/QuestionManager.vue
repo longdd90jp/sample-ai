@@ -90,7 +90,10 @@ const loadData = async () => {
       ...item,
       id: item.id ?? item._id,
     }));
-    questions.value = questionRes.data;
+    questions.value = questionRes.data.map((item) => ({
+      ...item,
+      id: item.id ?? item._id,
+    }));
   } catch (err) {
     console.error(err);
   } finally {

@@ -122,3 +122,17 @@ class QdrantStore:
             raise AssertionError("Unsupported qdrant-client query_points signature")
         response = self.client.query_points(**kwargs)
         return response.points
+
+    def delete_records(self, doc_ids: Iterable[str]) -> int:
+        """Delete points by doc_id payload and return count of delete ops."""
+        deleted = 0
+        for doc_id in doc_ids:
+            query_filter = Filter(
+                must=[FieldCondition(key="doc_id", match=MatchValue(value=doc_id))]
+            )
+            self.client.delete(
+                collection_name=settings.qdrant_collection,
+                points_selector=query_filter,
+            )
+            deleted += 1
+        return deleted
