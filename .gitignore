@@ -16,3 +16,6 @@ scripts/*.txt
 fine-tune-pc/server-ai/output_qwen_14b/*
 fine-tune-pc/server-ai/output/*
 fine-tune-pc/server-ai/output_qwen_7b/*
+
+node_modules
+package-lock.json

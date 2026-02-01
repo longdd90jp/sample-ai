@@ -6,7 +6,7 @@ from typing import Optional
 from motor.motor_asyncio import AsyncIOMotorClient
 
 MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
-DB_NAME = os.getenv("MONGODB_DB", "faq_system")
+DB_NAME = os.getenv("MONGODB_DB", "faq_db")
 
 _client: Optional[AsyncIOMotorClient] = None
 

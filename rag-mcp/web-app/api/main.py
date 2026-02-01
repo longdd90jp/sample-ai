@@ -1,8 +1,15 @@
+import sys
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes.categories import router as categories_router
-from routes.questions import router as questions_router
+# Allow running as a script: `python rag-mcp/web-app/api/main.py`
+if __package__ is None or __package__ == "":
+    sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from api.routes.categories import router as categories_router
+from api.routes.questions import router as questions_router
 
 app = FastAPI(title="FAQ Management API")
 
