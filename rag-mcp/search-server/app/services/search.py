@@ -1,5 +1,7 @@
 from typing import Any, Dict, List, Optional
 
+SearchResponse = Dict[str, Any]
+
 from app.core.config import settings
 from app.repositories.mongo_store import MongoStore
 from app.repositories.vector_store import QdrantStore
@@ -12,14 +14,13 @@ class SearchService:
         self.qdrant = QdrantStore()
         self.mongo = MongoStore()
 
-    def search(self, query: str, top_k: Optional[int] = None) -> Dict[str, Any]:
-        query_vector = self.embedder.embed_texts([query])[0]
-
+    def get_direct_answer(self, query_vector: List[float]) -> SearchResponse:
         question_hits = self.qdrant.search(
             query_vector=query_vector,
             top_k=1,
             vector_name=settings.question_vector_name,
         )
+
         if question_hits:
             top_hit = question_hits[0]
             if top_hit.score >= settings.search_threshold:
@@ -32,15 +33,20 @@ class SearchService:
                     "answer": (document or {}).get("answer", ""),
                     "score": top_hit.score,
                 }
+        return {}
 
+    def get_suggestions(self, query_vector: List[float], top_k: Optional[int] = None) -> SearchResponse:
         fallback_k = top_k or settings.search_top_k
         answer_hits = self.qdrant.search(
             query_vector=query_vector,
             top_k=fallback_k,
             vector_name=settings.answer_vector_name,
         )
+        # get doc_ids from answer_hits
         doc_ids = [((hit.payload or {}).get("doc_id")) for hit in answer_hits]
+        # get docs from mongo
         docs = self.mongo.get_by_ids([doc_id for doc_id in doc_ids if doc_id])
+        # create a dict of docs by id
         docs_by_id = {doc["_id"]: doc for doc in docs if "_id" in doc}
 
         suggestions: List[Dict[str, Any]] = []
@@ -58,3 +64,14 @@ class SearchService:
             )
 
         return {"mode": "suggest_questions", "suggestions": suggestions}
+
+    def search(self, query: str, top_k: Optional[int] = None) -> SearchResponse:
+        query_vector = self.embedder.embed_texts([query])[0]
+
+        # if question_hits is not empty and top_hit.score >= settings.search_threshold then return direct answer
+        direct_answer = self.get_direct_answer(query_vector)
+        if direct_answer:
+            return direct_answer
+
+        # else return suggestions
+        return self.get_suggestions(query_vector, top_k)
