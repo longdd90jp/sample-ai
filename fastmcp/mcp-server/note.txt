@@ -1,0 +1,7 @@
+un init
+.venv\Scripts\activate
+uv add fastmcp==2.14.3
+uv add packaging
+fastmcp run my_server.py:mcp --transport http --port 8000
+
+python my_server.py

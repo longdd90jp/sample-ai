@@ -1,0 +1,2 @@
+fastmcp==2.14.5
+packaging==26.0
