@@ -5,3 +5,45 @@ uv add packaging
 fastmcp run my_server.py:mcp --transport http --port 8000
 
 python my_server.py
+
+
+fastmcp-server/
+│
+├─ pyproject.toml
+├─ uv.lock                 # nếu dùng uv
+├─ .env
+├─ README.md
+│
+├─ src/
+│   └─ server/
+│       ├─ __init__.py
+│       ├─ main.py         # entrypoint chạy MCP server
+│
+│       ├─ config.py       # load env, setting
+│
+│       ├─ tools/          # nơi định nghĩa MCP tools
+│       │   ├─ __init__.py
+│       │   ├─ user_tools.py
+│       │   ├─ project_tools.py
+│       │   └─ db_tools.py
+│
+│       ├─ services/       # business logic
+│       │   ├─ __init__.py
+│       │   ├─ user_service.py
+│       │   ├─ project_service.py
+│       │   └─ db_service.py
+│
+│       ├─ hooks/          # auth / audit / policy
+│       │   ├─ __init__.py
+│       │   ├─ auth_hook.py
+│       │   ├─ audit_hook.py
+│       │   └─ policy_hook.py
+│
+│       └─ models/         # pydantic model
+│           ├─ __init__.py
+│           ├─ user_model.py
+│           └─ project_model.py
+│
+└─ tests/
+    ├─ test_user_tool.py
+    └─ test_project_tool.py
