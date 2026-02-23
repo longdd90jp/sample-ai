@@ -13,6 +13,18 @@ export class CreateProductDto {
   @MaxLength(500)
   description?: string;
 
+  // Optional adjective.
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  adjective?: string;
+
+  // Optional material.
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  material?: string;
+
   // Numeric price.
   @Type(() => Number)
   @IsNumber()
@@ -36,6 +48,18 @@ export class UpdateProductDto {
   @IsString()
   @MaxLength(500)
   description?: string;
+
+  // New adjective, if provided.
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  adjective?: string;
+
+  // New material, if provided.
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  material?: string;
 
   // New price, if provided.
   @IsOptional()

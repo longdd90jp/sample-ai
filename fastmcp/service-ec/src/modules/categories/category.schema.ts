@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 export type CategoryDocument = Category & Document;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, versionKey: false })
 export class Category {
   @Prop({ required: true, unique: true, trim: true })
   // Display name for the category.

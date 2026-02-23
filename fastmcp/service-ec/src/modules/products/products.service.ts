@@ -1,10 +1,20 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { faker } from '@faker-js/faker';
 import { Product, ProductDocument } from './product.schema';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 import { Category, CategoryDocument } from '../categories/category.schema';
+
+let fakerInstance: typeof import('@faker-js/faker').faker | null = null;
+
+async function getFaker() {
+  if (!fakerInstance) {
+    // Use eval to keep dynamic import from being downleveled to require() in CJS builds.
+    const mod = await (0, eval)('import("@faker-js/faker")');
+    fakerInstance = mod.faker;
+  }
+  return fakerInstance;
+}
 
 @Injectable()
 export class ProductsService {
@@ -62,6 +72,7 @@ export class ProductsService {
   }
 
   async fakerCreate(count: number) {
+    const faker = await getFaker();
     // Clamp requested count to a safe range.
     const requested = Math.max(1, Math.min(count, 1000));
     // Fetch available categories to pick a random categoryId.
@@ -70,13 +81,17 @@ export class ProductsService {
       throw new BadRequestException('No categories available for faker products');
     }
 
-    const toCreate: Array<Pick<Product, 'name' | 'description' | 'price' | 'categoryId'>> = [];
+    const toCreate: Array<
+      Pick<Product, 'name' | 'description' | 'adjective' | 'material' | 'price' | 'categoryId'>
+    > = [];
     for (let i = 0; i < requested; i += 1) {
       // Choose a random category for each product.
       const category = categories[Math.floor(Math.random() * categories.length)];
       toCreate.push({
         name: faker.commerce.productName(),
         description: faker.commerce.productDescription(),
+        adjective: faker.commerce.productAdjective(),
+        material: faker.commerce.productMaterial(),
         price: Number(faker.commerce.price({ min: 1, max: 10000, dec: 2 })),
         categoryId: category._id,
       });

@@ -3,7 +3,7 @@ import { Document, Types } from 'mongoose';
 
 export type ProductDocument = Product & Document;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, versionKey: false })
 export class Product {
   @Prop({ required: true, trim: true })
   // Display name for the product.
@@ -12,6 +12,14 @@ export class Product {
   @Prop({ trim: true })
   // Optional product description.
   description?: string;
+
+  @Prop({ trim: true })
+  // Optional product adjective.
+  adjective?: string;
+
+  @Prop({ trim: true })
+  // Optional product material.
+  material?: string;
 
   @Prop({ required: true })
   // Product price (numeric).

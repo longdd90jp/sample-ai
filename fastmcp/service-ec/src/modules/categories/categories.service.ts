@@ -1,9 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { faker } from '@faker-js/faker';
 import { Category, CategoryDocument } from './category.schema';
 import { CreateCategoryDto, UpdateCategoryDto } from './category.dto';
+
+let fakerInstance: typeof import('@faker-js/faker').faker | null = null;
+
+async function getFaker() {
+  if (!fakerInstance) {
+    // Use eval to keep dynamic import from being downleveled to require() in CJS builds.
+    const mod = await (0, eval)('import("@faker-js/faker")');
+    fakerInstance = mod.faker;
+  }
+  return fakerInstance;
+}
 
 @Injectable()
 export class CategoriesService {
@@ -52,6 +62,7 @@ export class CategoriesService {
   }
 
   async fakerCreate(count: number) {
+    const faker = await getFaker();
     // Clamp requested count to a safe range.
     const requested = Math.max(1, Math.min(count, 1000));
     // Build a set of existing category names to avoid duplicates.
